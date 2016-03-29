@@ -1,5 +1,5 @@
 import javax.swing.*; // inicia a biblioteca para interface gráfica
-import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 
 import java.awt.*;
@@ -10,11 +10,12 @@ import java.io.*; // para escrever e criar um arquivo
 import java.text.SimpleDateFormat;
 
 public class Notepad extends JFrame implements ActionListener {
+	// private TextArea textArea = new TextArea("", 0, 0,
+	// TextArea.SCROLLBARS_VERTICAL_ONLY);
 	private MenuBar menuBar = new MenuBar(); // cria o menu
 	private JTextPane textPane = new JTextPane();
-	StyledDocument doc = textPane.getStyledDocument();
-	SimpleAttributeSet keyWord = new SimpleAttributeSet();
 	private Menu file = new Menu();
+	Document doc = textPane.getDocument();
 	// Opções do menu
 	private MenuItem openFile = new MenuItem(); // opção de abrir
 
@@ -135,7 +136,7 @@ public class Notepad extends JFrame implements ActionListener {
 					while (scan.hasNext()) // funciona até ler o final do
 											// arquivo
 
-						this.doc.insertString(doc.getLength(), textPane.getText(), keyWord); // adiciona
+						this.doc.insertString(doc.getLength(), scan.nextLine() + "\n", null); // adiciona
 					// uma
 					// linha
 					// do
