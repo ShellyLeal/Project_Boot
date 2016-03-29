@@ -23,7 +23,7 @@ public class Notepad extends JFrame implements ActionListener {
 
 		this.setSize(500, 300); // tamanho inicial da janela de texto
 
-		this.setTitle("Java Notepad"); // título da janela
+		this.setTitle("Bloco de Notas Java"); // título da janela
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE); // operação de fechar a janela
 
@@ -140,7 +140,7 @@ public class Notepad extends JFrame implements ActionListener {
 					// out: criar arquivo para salvar o texto e horário de
 					// modificação
 
-					BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
+					BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()+".txt"));
 					Calendar cal = Calendar.getInstance();
 					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
