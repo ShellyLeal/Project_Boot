@@ -23,7 +23,6 @@ public class Notepad extends JFrame implements ActionListener {
 
 	private MenuItem close = new MenuItem(); // opção de fechar
 
-	private MenuItem search = new MenuItem();
 
 	public Notepad() {
 
@@ -49,15 +48,7 @@ public class Notepad extends JFrame implements ActionListener {
 
 		this.file.setLabel("File");
 
-		this.search.setLabel("Search"); // nomeia a opção de pesquisar
-
-		this.search.addActionListener(this); // para detectar o clique
-
-		this.search.setShortcut(new MenuShortcut(KeyEvent.VK_F, false)); // tecla
-																			// de
-																			// atalho
-		this.file.add(this.search); // adiciona ao menu
-
+		
 		this.openFile.setLabel("Open"); // nomeia a opção de abrir
 
 		this.openFile.addActionListener(this); // para detectar o clique
@@ -97,20 +88,7 @@ public class Notepad extends JFrame implements ActionListener {
 
 			this.dispose(); // fecha o aplicativo
 
-		else if (e.getSource() == this.search) {
 
-			final String inputValue = JOptionPane.showInputDialog("Search word");
-
-			final int l1 = textPane.getText().indexOf(inputValue);
-			final int l2 = inputValue.length();
-			// final int l3 = textArea.getText().indexOf(inputValue,l1+1);
-
-			if (l1 == -1) {
-				JOptionPane.showMessageDialog(null, "Search Value Not Found");
-			} else {
-				textPane.select(l1, l2 + l1);
-			}
-		}
 
 		// Evento abrir arquivo
 
