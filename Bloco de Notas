@@ -1,14 +1,16 @@
 import javax.swing.*; // inicia a biblioteca para interface gráfica
-import java.awt.*; 
+import java.awt.*;
 import java.awt.event.*; // para os eventos
+import java.util.Calendar;
 import java.util.Scanner; // para ler um arquivo
 import java.io.*; // para escrever e criar um arquivo
+import java.text.SimpleDateFormat;
 
 public class Notepad extends JFrame implements ActionListener {
 	private TextArea textArea = new TextArea("", 0, 0, TextArea.SCROLLBARS_VERTICAL_ONLY);
 	private MenuBar menuBar = new MenuBar(); // cria o menu
 
-	private Menu file = new Menu(); 
+	private Menu file = new Menu();
 
 	// Opções do menu
 	private MenuItem openFile = new MenuItem(); // opção de abrir
@@ -16,6 +18,8 @@ public class Notepad extends JFrame implements ActionListener {
 	private MenuItem saveFile = new MenuItem(); // opção de salvar
 
 	private MenuItem close = new MenuItem(); // opção de fechar
+
+	private MenuItem link = new MenuItem(); // opção de criar link
 
 	public Notepad() {
 
@@ -25,10 +29,11 @@ public class Notepad extends JFrame implements ActionListener {
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE); // operação de fechar a janela
 
-		this.textArea.setFont(new Font("Century Gothic", Font.BOLD, 12)); //fonte de texto
+		this.textArea.setFont(new Font("Century Gothic", Font.BOLD, 12)); // fonte
+																			// de
+																			// texto
 
-
-		this.getContentPane().setLayout(new BorderLayout()); 
+		this.getContentPane().setLayout(new BorderLayout());
 
 		this.getContentPane().add(textArea);
 
@@ -36,36 +41,51 @@ public class Notepad extends JFrame implements ActionListener {
 
 		this.setMenuBar(this.menuBar);
 
-		this.menuBar.add(this.file); 
+		this.menuBar.add(this.file);
 
 		this.file.setLabel("File");
 
-		
 		this.openFile.setLabel("Open"); // nomeia a opção de abrir
 
 		this.openFile.addActionListener(this); // para detectar o clique
 
-		this.openFile.setShortcut(new MenuShortcut(KeyEvent.VK_O, false)); // tecla de atalho
+		this.openFile.setShortcut(new MenuShortcut(KeyEvent.VK_O, false)); // tecla
+																			// de
+																			// atalho
 
 		this.file.add(this.openFile); // adiciona ao menu
-
 
 		this.saveFile.setLabel("Save"); // nomeia a opção de salvar
 
 		this.saveFile.addActionListener(this); // para detectar o clique
 
-		this.saveFile.setShortcut(new MenuShortcut(KeyEvent.VK_S, false)); // tecla de atalho
+		this.saveFile.setShortcut(new MenuShortcut(KeyEvent.VK_S, false)); // tecla
+																			// de
+																			// atalho
 
 		this.file.add(this.saveFile); // adiciona ao menu
 
-
 		this.close.setLabel("Close"); // nomeia a opção de fechar
 
-		this.close.setShortcut(new MenuShortcut(KeyEvent.VK_F4, false)); // teclas de atalho "CTRL+F4"
+		this.close.setShortcut(new MenuShortcut(KeyEvent.VK_F4, false)); // teclas
+																			// de
+																			// atalho
+																			// "CTRL+F4"
 
 		this.close.addActionListener(this); // para detectar o clique
 
 		this.file.add(this.close); // adiciona ao menu
+
+		this.link.setLabel("Insert hyperlink"); // nomeia a opção de adicionar
+												// hyperlink
+
+		this.link.addActionListener(this); // para detectar o clique
+
+		this.link.setShortcut(new MenuShortcut(KeyEvent.VK_L, false)); // tecla
+																		// de
+																		// atalho
+
+		this.file.add(this.link); // adiciona ao menu
 
 	}
 
@@ -81,14 +101,16 @@ public class Notepad extends JFrame implements ActionListener {
 
 		else if (e.getSource() == this.openFile) {
 
-			JFileChooser open = new JFileChooser(); // abre o diálogo para escolher o arquivo
+			JFileChooser open = new JFileChooser(); // abre o diálogo para
+													// escolher o arquivo
 
-			int option = open.showOpenDialog(this); // acrescenta a opção 'aceitar' ou 'cancelar'
+			int option = open.showOpenDialog(this); // acrescenta a opção
+													// 'aceitar' ou 'cancelar'
 
-			
 			if (option == JFileChooser.APPROVE_OPTION) {
 
-				this.textArea.setText(""); // limpa a área de texto e inclui o conteúdo do arquivo aberto
+				this.textArea.setText(""); // limpa a área de texto e inclui o
+											// conteúdo do arquivo aberto
 
 				try {
 
@@ -96,9 +118,14 @@ public class Notepad extends JFrame implements ActionListener {
 
 					Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
 
-					while (scan.hasNext()) // funciona até ler o final do arquivo
+					while (scan.hasNext()) // funciona até ler o final do
+											// arquivo
 
-						this.textArea.append(scan.nextLine() + "\n"); // adiciona uma linha do arquivo
+						this.textArea.append(scan.nextLine() + "\n"); // adiciona
+																		// uma
+																		// linha
+																		// do
+																		// arquivo
 
 				} catch (Exception ex) { // gerar mensagens para as exceções
 
@@ -114,19 +141,31 @@ public class Notepad extends JFrame implements ActionListener {
 
 		else if (e.getSource() == this.saveFile) {
 
-			JFileChooser save = new JFileChooser(); // abre o diálogo para escolher arquivo
+			JFileChooser save = new JFileChooser(); // abre o diálogo para
+													// escolher arquivo
 
-			int option = save.showSaveDialog(this); 
+			int option = save.showSaveDialog(this);
 
 			if (option == JFileChooser.APPROVE_OPTION) {
 
 				try {
 
-					// out: criar arquivo para salvar o texto
+					// out: criar arquivo para salvar o texto e horário de
+					// modificação
 
 					BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
+					Calendar cal = Calendar.getInstance();
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
-					out.write(this.textArea.getText()); // passao conteúdo da área de texto para o arquivo
+					out.write(this.textArea.getText() + "\r\nÚltima modificação: " + sdf.format(cal.getTime())); // passa o
+																													// conteúdo
+																													// da
+																													// área
+																													// de
+																													// texto
+																													// para
+																													// o
+																													// arquivo
 
 					out.close(); // fecha o arquivo
 
@@ -138,6 +177,26 @@ public class Notepad extends JFrame implements ActionListener {
 
 			}
 
+		}
+
+		else if (e.getSource() == this.link) {
+			JTextPane jTextPane = new JTextPane();
+
+			JFrame frame = new JFrame("Test");
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.pack();
+			frame.setVisible(true);
+			frame.setSize(500, 100);
+			JButton btnGetSelectedText = new JButton("Insert hyperlink");
+			btnGetSelectedText.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.out.println(jTextPane.getText());
+				}
+			});
+			frame.getContentPane().add(jTextPane, BorderLayout.NORTH);
+			frame.getContentPane().add(btnGetSelectedText, BorderLayout.SOUTH);
 		}
 
 	}
