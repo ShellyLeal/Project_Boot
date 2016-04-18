@@ -1,6 +1,8 @@
 import javax.swing.*; // inicia a biblioteca para interface gráfica
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import java.awt.*;
 import java.awt.event.*; // para os eventos
@@ -22,6 +24,7 @@ public class Notepad extends JFrame implements ActionListener {
 	private MenuItem saveFile = new MenuItem(); // opção de salvar
 
 	private MenuItem close = new MenuItem(); // opção de fechar
+
 
 
 	public Notepad() {
@@ -46,38 +49,28 @@ public class Notepad extends JFrame implements ActionListener {
 
 		this.menuBar.add(this.file);
 
-		this.file.setLabel("File");
+		this.file.setLabel("Arquivo");
 
 		
-		this.openFile.setLabel("Open"); // nomeia a opção de abrir
-
+		this.openFile.setLabel("Abrir"); // nomeia a opção de abrir
 		this.openFile.addActionListener(this); // para detectar o clique
-
-		this.openFile.setShortcut(new MenuShortcut(KeyEvent.VK_O, false)); // tecla
-																			// de
-																			// atalho
-
+		this.openFile.setShortcut(new MenuShortcut(KeyEvent.VK_O, false)); // tecla de atalho
 		this.file.add(this.openFile); // adiciona ao menu
+		
 
-		this.saveFile.setLabel("Save"); // nomeia a opção de salvar
-
+		this.saveFile.setLabel("Salvar como..."); // nomeia a opção de salvar
 		this.saveFile.addActionListener(this); // para detectar o clique
-
-		this.saveFile.setShortcut(new MenuShortcut(KeyEvent.VK_S, false)); // tecla
-																			// de
-																			// atalho
-
+		this.saveFile.setShortcut(new MenuShortcut(KeyEvent.VK_S, false)); // tecla de atalho																		
 		this.file.add(this.saveFile); // adiciona ao menu
 
-		this.close.setLabel("Close"); // nomeia a opção de fechar
-
-		this.close.setShortcut(new MenuShortcut(KeyEvent.VK_F4, false)); // atalho
-																			// "CTRL+F4"
-
+		this.close.setLabel("Fechar"); // nomeia a opção de fechar
 		this.close.addActionListener(this); // para detectar o clique
-
+		this.close.setShortcut(new MenuShortcut(KeyEvent.VK_F4, false)); // atalho "CTRL+F4"
 		this.file.add(this.close); // adiciona ao menu
 
+	
+	    
+		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -94,16 +87,14 @@ public class Notepad extends JFrame implements ActionListener {
 
 		else if (e.getSource() == this.openFile) {
 
-			JFileChooser open = new JFileChooser(); // abre o diálogo para
-													// escolher o arquivo
+			JFileChooser open = new JFileChooser(); // abre o diálogo para escolher o arquivo
+												
 
-			int option = open.showOpenDialog(this); // acrescenta a opção
-													// 'aceitar' ou 'cancelar'
-
+			int option = open.showOpenDialog(this); // acrescenta a opção 'aceitar' ou 'cancelar'
+													
 			if (option == JFileChooser.APPROVE_OPTION) {
 
-				this.textPane.setText(""); // limpa a área de texto e inclui o
-											// conteúdo do arquivo aberto
+				this.textPane.setText(""); // limpa a área de texto e inclui o conteúdo do arquivo aberto
 
 				try {
 
@@ -111,15 +102,10 @@ public class Notepad extends JFrame implements ActionListener {
 
 					Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
 
-					while (scan.hasNext()) // funciona até ler o final do
-											// arquivo
-
-						this.doc.insertString(doc.getLength(), scan.nextLine() + "\n", null); // adiciona
-					// uma
-					// linha
-					// do
-					// arquivo
-
+					while (scan.hasNext()) // funciona até ler o final do arquivo
+					
+						this.doc.insertString(doc.getLength(), scan.nextLine() + "\n", null); // adiciona uma linha ao arquivo
+			
 				} catch (Exception ex) { // gerar mensagens para as exceções
 
 					System.out.println(ex.getMessage());
@@ -134,33 +120,20 @@ public class Notepad extends JFrame implements ActionListener {
 
 		else if (e.getSource() == this.saveFile) {
 
-			JFileChooser save = new JFileChooser(); // abre o diálogo para
-													// escolher arquivo
-
+			JFileChooser save = new JFileChooser(); // abre o diálogo para escolher arquivo
 			int option = save.showSaveDialog(this);
 
 			if (option == JFileChooser.APPROVE_OPTION) {
 
 				try {
 
-					// out: criar arquivo para salvar o texto e horário de
-					// modificação
-
+					// out: criar arquivo para salvar o texto e horário de modificação
 					BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath() + ".txt"));
 					Calendar cal = Calendar.getInstance();
 					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
-					out.write(this.textPane.getText() + "\r\nÚltima modificação: " + sdf.format(cal.getTime())); // passa
-																													// o
-																													// conteúdo
-																													// da
-																													// área
-																													// de
-																													// texto
-																													// para
-																													// o
-																													// arquivo
-
+					out.write(this.textPane.getText() + "\r\nÚltima modificação: " + sdf.format(cal.getTime())); // passa o conteudo da area de texto para o arquivo
+																												
 					out.close(); // fecha o arquivo
 
 				} catch (Exception ex) { // gera mensagens para exceções
@@ -172,7 +145,8 @@ public class Notepad extends JFrame implements ActionListener {
 			}
 
 		}
-
+		
+		
 	}
 
 	// método main
