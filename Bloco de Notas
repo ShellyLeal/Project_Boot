@@ -1,22 +1,26 @@
 import javax.swing.*; // inicia a biblioteca para interface gráfica
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
+
 
 import java.awt.*;
 import java.awt.event.*; // para os eventos
 import java.util.Calendar;
 import java.util.Scanner; // para ler um arquivo
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.*; // para escrever e criar um arquivo
 import java.text.SimpleDateFormat;
 
 public class Notepad extends JFrame implements ActionListener {
 	// private TextArea textArea = new TextArea("", 0, 0,
 	// TextArea.SCROLLBARS_VERTICAL_ONLY);
+	 int posInicial = 0;
 	private MenuBar menuBar = new MenuBar(); // cria o menu
 	private JTextPane textPane = new JTextPane();
 	private Menu file = new Menu();
+	private Menu file2 = new Menu();
 	Document doc = textPane.getDocument();
 	// Opções do menu
 	private MenuItem openFile = new MenuItem(); // opção de abrir
@@ -25,8 +29,8 @@ public class Notepad extends JFrame implements ActionListener {
 
 	private MenuItem close = new MenuItem(); // opção de fechar
 
-
-
+    private MenuItem search = new MenuItem();
+ 
 	public Notepad() {
 
 		this.setSize(500, 300); // tamanho inicial da janela de texto
@@ -48,8 +52,9 @@ public class Notepad extends JFrame implements ActionListener {
 		this.setMenuBar(this.menuBar);
 
 		this.menuBar.add(this.file);
-
+		this.menuBar.add(this.file2);
 		this.file.setLabel("Arquivo");
+		this.file2.setLabel("Editar");
 
 		
 		this.openFile.setLabel("Abrir"); // nomeia a opção de abrir
@@ -68,8 +73,10 @@ public class Notepad extends JFrame implements ActionListener {
 		this.close.setShortcut(new MenuShortcut(KeyEvent.VK_F4, false)); // atalho "CTRL+F4"
 		this.file.add(this.close); // adiciona ao menu
 
-	
-	    
+	    this.search.setLabel("Localizar...");// nomeia a opção de localizar
+	    this.search.addActionListener(this);// para detectar o clique
+		this.search.setShortcut(new MenuShortcut(KeyEvent.VK_F, false)); // tecla de atalho "CTRL+F"
+	    this.file2.add(this.search);// adiciona ao menu
 		
 	}
 
@@ -145,9 +152,61 @@ public class Notepad extends JFrame implements ActionListener {
 			}
 
 		}
+		else if (e.getSource() == this.search){
+		
+			 JPanel fields = new JPanel(new GridBagLayout());
+			 fields.setLayout(new FlowLayout());
+			//Container c = getContentPane();
+		    //FlowLayout layout = new FlowLayout(FlowLayout.RIGHT);
+		    //c.setLayout(layout);
+		    JTextField texto = new JTextField(10);
+		    JButton btn = new JButton("Localizar/Localizar Próximo");
+		    JButton cancel = new JButton("Cancelar");
+		    add(fields, BorderLayout.NORTH);
+		    add(new JScrollPane(textPane));
+		    fields.add(texto);
+		    fields.add(btn);
+		    fields.add(cancel);
+		    setVisible(true);
+		    btn.addActionListener(
+		        new ActionListener(){
+		            public void actionPerformed(ActionEvent e){
+		            	DefaultStyledDocument document = (DefaultStyledDocument) textPane.getDocument();
+		            	
+		               try {
+						String contText = document.getText(0, document.getLength());
+					
+		            	
+		               String pesquisa = texto.getText();
+		               int res = contText.indexOf(pesquisa, posInicial);
+		               if(res < 0){
+		                  JOptionPane.showMessageDialog(null, "Texto não encontrado");
+		                  posInicial = 0;   
+		               } 
+		               else{
+		                  textPane.requestFocus();
+		                  textPane.select(res, res + pesquisa.length());
+		                  posInicial = res + pesquisa.length();
+		               }
+		               } catch (BadLocationException ex) {
+							Logger.getLogger(JTextPane.class.getName()).log(Level.SEVERE, null, ex);
+						}
+		            }
+		        }   
+		    );
+		    cancel.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){fields.setVisible(false);}});
+		
+
+		       
+		   
+		  }
+		  
+		  
+		}
 		
 		
-	}
+		
+	
 
 	// método main
 
