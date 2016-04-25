@@ -1,0 +1,176 @@
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.SimpleAttributeSet;
+
+import javax.swing.text.Utilities;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
+
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+ 
+public class AutocreateLinks extends JTextPane {
+	boolean isNeedCursorChange=true;
+    boolean isInProgress=false;
+    JFrame frame = new JFrame("Autocreate links during user typing example");
+    public static void main(String[] args) throws Exception {
+    	new AutocreateLinks();
+       
+    }
+ 
+    public AutocreateLinks() {
+        super();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setEditorKit(new MyHTMLEditorKit());
+        this.setContentType("text/html");
+        this.initListener();
+        JScrollPane scroll = new JScrollPane(this){
+            public void setCursor(Cursor cursor) {
+                if (isNeedCursorChange) {
+                    super.setCursor(cursor);
+                }
+            }
+        };
+        frame.getContentPane().add(scroll);
+        this.addHyperlinkListener(new HTMLListener());
+        frame.setSize(400, 200);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+    
+   
+    
+    private class HTMLListener implements HyperlinkListener {
+        public void hyperlinkUpdate(HyperlinkEvent e) {
+           	JTextPane edit = (JTextPane) e.getSource();
+          if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+              try {
+            	  java.awt.Desktop.getDesktop().browse(e.getURL().toURI());
+              } catch (Exception exc) {
+                  exc.printStackTrace();
+              }
+          }
+        }
+      }
+       
+    
+    
+    
+    public class MyHTMLEditorKit extends HTMLEditorKit {
+
+        MyLinkController handler=new MyLinkController();
+        public void install(JEditorPane c) {
+            MouseListener[] oldMouseListeners=c.getMouseListeners();
+            MouseMotionListener[] oldMouseMotionListeners=c.getMouseMotionListeners();
+            super.install(c);
+            //the following code removes link handler added by original
+            //HTMLEditorKit
+
+            for (MouseListener l: c.getMouseListeners()) {
+                c.removeMouseListener(l);
+            }
+            for (MouseListener l: oldMouseListeners) {
+                c.addMouseListener(l);
+            }
+
+            for (MouseMotionListener l: c.getMouseMotionListeners()) {
+                c.removeMouseMotionListener(l);
+            }
+            for (MouseMotionListener l: oldMouseMotionListeners) {
+                c.addMouseMotionListener(l);
+            }
+ 
+            //add out link handler instead of removed one
+            c.addMouseListener(handler);
+            c.addMouseMotionListener(handler);
+        }
+ 
+        public class MyLinkController extends LinkController {
+
+            public void mouseClicked(MouseEvent e) {
+                JEditorPane editor = (JEditorPane) e.getSource();
+ 
+                if (editor.isEditable() && SwingUtilities.isLeftMouseButton(e)) {
+                    if (e.getClickCount()==1) {
+                        editor.setEditable(false);
+                        super.mouseClicked(e);
+                        editor.setEditable(true);
+                    }
+                }
+
+            }
+            public void mouseMoved(MouseEvent e) {
+                JEditorPane editor = (JEditorPane) e.getSource();
+ 
+                if (editor.isEditable()) {
+                    isNeedCursorChange=false;
+                    editor.setEditable(false);
+                    isNeedCursorChange=true;
+                    super.mouseMoved(e);
+                    isNeedCursorChange=false;
+                    editor.setEditable(true);
+                    isNeedCursorChange=true;
+                }
+            }
+
+        }
+    }
+    private void initListener() {
+        getDocument().addDocumentListener(new DocumentListener(){
+            public void insertUpdate(DocumentEvent event) {
+                final DocumentEvent e=event;
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        if (e.getDocument() instanceof HTMLDocument
+                                && e.getOffset()>0
+                                && e.getLength()==1
+                                && !isInProgress) {
+                            try {
+
+                                HTMLDocument doc=(HTMLDocument)e.getDocument();
+                                String text=doc.getText(e.getOffset(), e.getLength());
+                                if (text.charAt(0)==' ' || text.charAt(0)=='\n' || text.charAt(0)=='\t') {
+                                    int start=Utilities.getWordStart(AutocreateLinks.this, e.getOffset()-1);
+                                    text=doc.getText(start, e.getOffset()-start);
+                                    if (text.startsWith("www")) {
+                                        isInProgress=true;
+                                        HTMLEditorKit kit=(HTMLEditorKit)getEditorKit();
+                                        //the next 3 lines are necessary to create separate text elem
+                                        //to be replaced with link
+                                        SimpleAttributeSet a=new SimpleAttributeSet();
+                                        a.addAttribute("DUMMY_ATTRIBUTE_NAME","DUMMY_ATTRIBUTE_VALUE");
+                                        doc.setCharacterAttributes(start, text.length(), a, false);
+ 
+                                        Element elem=doc.getCharacterElement(start);
+                                        String html="<a href=\"http://" + text + "\">" + text + "</a>";
+                                        doc.setOuterHTML(elem, html);
+                                        isInProgress=false;
+                                    }
+                                }
+                            } catch (BadLocationException e1) {
+                                e1.printStackTrace();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }
+                });
+            }
+            public void removeUpdate(DocumentEvent e) {
+            }
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
+    }
+
+ 
+}
