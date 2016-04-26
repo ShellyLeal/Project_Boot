@@ -30,7 +30,8 @@ public class Notepad extends JFrame implements ActionListener {
 	private Menu file2 = new Menu();
 	private Menu file3 = new Menu();
 	private Document doc = textPane.getDocument();
-
+    File bloco = new File("C:\\bloco");
+ 
 	 JPanel fields = new JPanel(new GridBagLayout());
 	 
    JTextField texto = new JTextField(10);
@@ -63,7 +64,14 @@ public class Notepad extends JFrame implements ActionListener {
                 }
             }
         };
-      
+        if (!bloco.exists()) {
+            if (bloco.mkdir()) {
+                System.out.println("Directory is created!");
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
+
 
 	  
         
@@ -296,7 +304,6 @@ new ActionListener(){
 
 			JFileChooser open = new JFileChooser(); // abre o diálogo para escolher o arquivo
 												
-
 			int option = open.showOpenDialog(this); // acrescenta a opção 'aceitar' ou 'cancelar'
 													
 			if (option == JFileChooser.APPROVE_OPTION) {
@@ -334,16 +341,19 @@ new ActionListener(){
                     
 					// out: criar arquivo para salvar o texto e horário de modificação
 					BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath() + ".txt"));
-				    System.out.println(save.getSelectedFile().getAbsolutePath()+ ".txt");
+					BufferedWriter out2 = new BufferedWriter(new FileWriter("C:\\bloco\\" +new File(save.getSelectedFile().getAbsolutePath()).getName()+ ".txt"));
+
+				    System.out.println(new File(save.getSelectedFile().getAbsolutePath()).getName());
 				    
 				    
 					Calendar cal = Calendar.getInstance();
 					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
 					out.write(this.textPane.getText() + "\r\nÚltima modificação: " + sdf.format(cal.getTime())); // passa o conteudo da area de texto para o arquivo
-																												
+				    out2.write(this.textPane.getText() + "\r\nÚltima modificação: " + sdf.format(cal.getTime()));																						
 					out.close(); // fecha o arquivo
-
+                    out2.close();
+                    
 				} catch (Exception ex) { // gera mensagens para exceções
 
 					System.out.println(ex.getMessage());
