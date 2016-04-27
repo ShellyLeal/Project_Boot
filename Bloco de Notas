@@ -305,9 +305,9 @@ new ActionListener(){
 			JFileChooser open = new JFileChooser(); // abre o diálogo para escolher o arquivo
 												
 			int option = open.showOpenDialog(this); // acrescenta a opção 'aceitar' ou 'cancelar'
-													
+			String ajudante = "";										
 			if (option == JFileChooser.APPROVE_OPTION) {
-				Document doc = textPane.getDocument();
+				
 				this.textPane.setText(""); // limpa a área de texto e inclui o conteúdo do arquivo aberto
 			
 				try {
@@ -317,7 +317,9 @@ new ActionListener(){
 					Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
 
 					while (scan.hasNext()) // funciona até ler o final do arquivo
-						doc.insertString(doc.getLength(), scan.nextLine() + "\n", null); // adiciona uma linha ao arquivo
+						ajudante = ajudante + scan.nextLine() + "\n";
+				
+					textPane.setText(ajudante);
 					System.out.println(doc.getText(0,doc.getLength()));
 				} catch (Exception ex) { // gerar mensagens para as exceções
 
